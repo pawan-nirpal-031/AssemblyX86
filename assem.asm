@@ -1,18 +1,11 @@
 section .bss
-buf resb 15
-buf_len  equ $-buf
+char_ans resb 2
+char_ans_len equ $-char_ans
+
+
 
 
 section .data
-msg db 10,"input name ",10
-msg_len equ $-msg
-
-msg1 db 10,"New program",10
-msg1_len equ $-msg1
-
-msg2 db 10,"Assmebly program 2",10
-msg2_len equ $-msg2
-
 	%macro cout 2
 	mov rax,1
 	mov rdi,1
@@ -35,17 +28,54 @@ msg2_len equ $-msg2
 	syscall
 	%endmacro
 
+
+
+msg db 10,"Hex equvilant ",10
+msg_len equ $-msg
+
+msg1 db 10,"New program",10
+msg1_len equ $-msg1
+
+msg2 db 10,"Assmebly program 2",10
+msg2_len equ $-msg2
+
+
+
+	
+
 section .text
 	global _start
 _start:
-	
-
+	mov rax, 31
 	cout msg,msg_len
 
-    cin buf,buf_len
-
-	cout msg1,msg1_len
-    
-	cout buf,buf_len
-	
+	call display
 	exit
+
+
+display :
+	mov rbx,16
+	mov rcx,2
+	mov rsi,char_ans+1
+
+cnt:
+	mov rdx,0
+	div rbx
+	cmp dl,09h
+	jbe add30
+	add dl,07h
+
+add30 : add dl,30h
+        mov [rsi],dl
+		dec rsi
+		dec rcx
+		jnz cnt
+		cout char_ans,2
+		ret 
+	
+
+
+
+	
+	
+	

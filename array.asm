@@ -1,95 +1,86 @@
+%macro print 2
+mov rax ,1
+mov rdi,1
+mov rsi,%1
+mov rdx,%2
+syscall
+%endmacro
+
+%macro exit 0
+mov rax,60
+mov rdi,00
+syscall
+%endmacro
+
 section .bss
-char_ans  resb 4
-char_ans_len  equ $-char_ans
-p_count resq 1
-n_count resq 1
+charans resb 2
+pcount resq 1
+ncount resq 1
 
-%macro cout 2
-	mov rax,1
-	mov rdi,1
-	mov rsi,%1
-	mov rdx,%2
-	syscall
-	%endmacro
-    
-	%macro exit 0
-	mov rax,60
-	mov rdi,00
-	syscall
-	%endmacro
-    
-	%macro cin 2
-	mov rax,00
-	mov rdi,00
-	mov rsi,%1
-	mov rdx,%2
-	syscall
-	%endmacro
 section .data
-    array dq 12,-43,22,44,-4,-3,43
-    n equ 7
-	msg db 10,"Postive :  ",10
-    msg_len equ $-msg
-    msg1 db 10,"Negetive : ",10
-    msg1_len equ $-msg1
-   
+arr dq  11h,-2h,-33h,22h,43h,-66h,77h
+n equ 7
+msg1 db "Positive count",10
+len1 equ $- msg1
 
+msg2 db "Negetive count ",10
+len2 equ $-msg2
 
-	
 
 section .text
-	global _start
-_start:
-	mov rsi ,array
-    mov rcx ,n
-    mov rbx ,0
-    mov rdx ,0
-    
-    
-    
-    next_num: 
-        mov rax,[rsi]
-        shl rax,1
-        jc negetive
-    postive:
-        inc rbx
-        jmp next
-    negetive: 
-        inc rdx
-   
-    next: 
-        add rsi,8
-        dec rcx
-        jnz next_num
+global _start:
+    _start:
+    mov rbx,0
+    mov rdx,0
+    mov rsi,arr
+    mov rcx,n
 
-        mov [p_count],rbx
-        mov [n_count],rdx
+back:
+    mov rax,[rsi]
+    shl rax,1
+    jc negetive
+    inc rbx
+    jmp next
 
-        cout msg,msg_len
-        mov rax,[p_count]
-        call display
+negetive:
+    inc rdx
+
+next:
+    add rsi,8
+    dec rcx
+    jnz back
+
+mov [pcount],rbx
+mov [ncount],rdx
+
+print msg1,len1
+mov rax,[pcount]
+call display
+
+print msg2,len2
+mov rax,[ncount]
+call display
+
+exit
+
+display:
+mov rbx,16
+mov rcx,2
+mov rsi,charans+1
+
+cnt:
+mov rdx,0
+div rbx
+cmp dl,09h
+jbe add30
+add dl,07h
 
 
-        cout msg1,msg1_len
-        mov rax,[n_count]
-        call display
-        exit
-        display:
-        mov rbx,10
-        mov rcx,2
-        mov rsi,char_ans+1
-        cnt:
-        mov rdx,0
-        div rbx
-        cmp dl,09h
-        jbe add_30
-        add dl,07h
-
-        add_30:
-        add dl,30h
-        mov [rsi],dl
-        dec rsi
-        dec rcx
-        jnz cnt
-        cout char_ans,2
-        ret
+add30:
+    add dl,30h
+    mov [rsi],dl
+    dec rsi
+    dec rcx
+    jnz cnt
+    print charans,2
+ret
